@@ -1,0 +1,22 @@
+{
+  "name": "nextjs-keycloak-sso-rbac",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@12.9.1",
+  "engines": { "node": ">=24.21.0 <25" },
+  "scripts": {
+    "setup": "pnpm install --frozen-lockfile && pnpm infra:up && pnpm dev",
+    "env:local": "node scripts/bootstrap-local.mjs",
+    "dev": "pnpm env:local && pnpm --filter @sso/web dev",
+    "build": "pnpm --filter @sso/web build",
+    "typecheck": "pnpm --filter @sso/web typecheck",
+    "lint": "pnpm --filter @sso/web lint",
+    "test": "pnpm --filter @sso/web test",
+    "e2e": "pnpm --filter @sso/web e2e",
+    "infra:up": "pnpm env:local && docker compose --env-file infra/.env -f infra/docker-compose.yml up -d --wait",
+    "infra:down": "docker compose --env-file infra/.env -f infra/docker-compose.yml down",
+    "infra:config": "docker compose --env-file infra/.env -f infra/docker-compose.yml config --quiet",
+    "package:zip": "python3 scripts/package-zip.py"
+  }
+}

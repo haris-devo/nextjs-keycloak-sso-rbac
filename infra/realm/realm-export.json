@@ -1,0 +1,104 @@
+{
+  "realm": "demo",
+  "enabled": true,
+  "displayName": "SSO and RBAC demo",
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "bruteForceProtected": true,
+  "failureFactor": 5,
+  "waitIncrementSeconds": 60,
+  "maxFailureWaitSeconds": 900,
+  "accessTokenLifespan": 120,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 28800,
+  "revokeRefreshToken": true,
+  "refreshTokenMaxReuse": 0,
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Manage the demo and use editor routes" },
+      { "name": "editor", "description": "Use editor routes" },
+      { "name": "viewer", "description": "Use the dashboard" }
+    ]
+  },
+  "clients": [{
+    "clientId": "web",
+    "name": "Next.js web app",
+    "enabled": true,
+    "protocol": "openid-connect",
+    "clientAuthenticatorType": "client-secret",
+    "publicClient": false,
+    "secret": "${AUTH_KEYCLOAK_SECRET}",
+    "standardFlowEnabled": true,
+    "implicitFlowEnabled": false,
+    "directAccessGrantsEnabled": false,
+    "serviceAccountsEnabled": false,
+    "fullScopeAllowed": true,
+    "redirectUris": ["${WEB_ORIGIN}/api/auth/callback/keycloak"],
+    "webOrigins": ["${WEB_ORIGIN}"],
+    "attributes": {
+      "pkce.code.challenge.method": "S256",
+      "post.logout.redirect.uris": "${WEB_ORIGIN}/signed-out"
+    },
+    "defaultClientScopes": ["web-claims"],
+    "optionalClientScopes": []
+  }],
+  "clientScopes": [{
+    "name": "web-claims",
+    "description": "Identity claims and verified application roles",
+    "protocol": "openid-connect",
+    "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" },
+    "protocolMappers": [
+      {
+        "name": "realm roles",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-usermodel-realm-role-mapper",
+        "consentRequired": false,
+        "config": { "claim.name": "realm_access.roles", "jsonType.label": "String", "multivalued": "true", "access.token.claim": "true", "id.token.claim": "false", "userinfo.token.claim": "false" }
+      },
+      {
+        "name": "web audience",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-audience-mapper",
+        "consentRequired": false,
+        "config": { "included.client.audience": "web", "access.token.claim": "true", "id.token.claim": "false" }
+      },
+      {
+        "name": "username",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-usermodel-property-mapper",
+        "consentRequired": false,
+        "config": { "user.attribute": "username", "claim.name": "preferred_username", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" }
+      },
+      {
+        "name": "full name",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-full-name-mapper",
+        "consentRequired": false,
+        "config": { "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" }
+      },
+      {
+        "name": "email",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-usermodel-property-mapper",
+        "consentRequired": false,
+        "config": { "user.attribute": "email", "claim.name": "email", "jsonType.label": "String", "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" }
+      },
+      {
+        "name": "email verified",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-usermodel-property-mapper",
+        "consentRequired": false,
+        "config": { "user.attribute": "emailVerified", "claim.name": "email_verified", "jsonType.label": "boolean", "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" }
+      }
+    ]
+  }],
+  "users": [
+    { "username": "alice", "enabled": true, "firstName": "Alice", "lastName": "Admin", "email": "alice@example.com", "emailVerified": true, "requiredActions": [], "realmRoles": ["admin"], "credentials": [{ "type": "password", "value": "Alice-demo-only-123!", "temporary": false }] },
+    { "username": "bob", "enabled": true, "firstName": "Bob", "lastName": "Editor", "email": "bob@example.com", "emailVerified": true, "requiredActions": [], "realmRoles": ["editor"], "credentials": [{ "type": "password", "value": "Bob-demo-only-123!", "temporary": false }] },
+    { "username": "carol", "enabled": true, "firstName": "Carol", "lastName": "Viewer", "email": "carol@example.com", "emailVerified": true, "requiredActions": [], "realmRoles": ["viewer"], "credentials": [{ "type": "password", "value": "Carol-demo-only-123!", "temporary": false }] }
+  ]
+}
