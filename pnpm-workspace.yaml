@@ -6,6 +6,7 @@ strictPeerDependencies: true
 allowBuilds:
   esbuild: true
   sharp: true
+  unrs-resolver: true
 minimumReleaseAgeExclude:
   - '@radix-ui/react-slot@1.4.0'
   - vite@8.3.3

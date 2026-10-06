@@ -1,10 +1,10 @@
 # Next.js + Keycloak: SSO and server-enforced RBAC
 
-A portfolio example of an App Router application using a self-hosted Keycloak identity provider. Auth.js handles the OIDC authorization code flow. The app validates signed access tokens, renews them with rotating refresh tokens, enforces role access on the server, and performs RP-initiated logout. Docker Compose supplies reproducible local identity services and a separate HTTPS deployment configuration.
+A Next.js App Router application using a self-hosted Keycloak identity provider. Auth.js handles the OIDC authorization code flow. The app validates signed access tokens, renews them with rotating refresh tokens, enforces role access on the server, and performs RP-initiated logout. Docker Compose supplies reproducible local identity services and a separate HTTPS deployment configuration.
 
-**Verification status:** the repository was created and reviewed without starting the application, installing `node_modules`, or running its unit tests, browser tests, or build. Dependency metadata was resolved to create the lockfile. Static findings and the remaining runtime checks are recorded in [docs/VERIFICATION.md](docs/VERIFICATION.md). This is an implemented example, not a claim of a tested production deployment.
+[![Verify](https://github.com/haris-devo/nextjs-keycloak-sso-rbac/actions/workflows/ci.yml/badge.svg)](https://github.com/haris-devo/nextjs-keycloak-sso-rbac/actions/workflows/ci.yml)
 
-Live demo: **not deployed**. Replace this text with your verified deployment URL before publishing a live demo link.
+CI runs typecheck, lint, unit tests and the production build, then starts Keycloak and Postgres in Docker and runs the Playwright browser tests against them.
 
 ## Start locally
 
@@ -113,9 +113,7 @@ sequenceDiagram
 - **Logout needs an end-session request:** clearing an app cookie leaves Keycloak SSO active. A server action reads the encrypted session, clears the app cookie, and sends the browser to Keycloak with the ID token hint and exact return URI. If discovery is unavailable, the page reports that upstream logout is unconfirmed. See [ADR 006](docs/adr/006-logout.md).
 - **Cookie size:** JWT sessions hold provider tokens and may be chunked into several cookies by Auth.js. The session API returns only name, email, roles, expiry, and the optional refresh error. Test request header size before expanding claims or moving behind a new proxy. See [SECURITY.md](docs/SECURITY.md).
 
-## Verification commands
-
-The commands below are provided for the reviewer. They were not executed during the code-only implementation.
+## Running the checks
 
 ```sh
 pnpm install --frozen-lockfile
@@ -132,7 +130,7 @@ pnpm e2e
 
 Vitest covers authorization, API status codes, session projection, refresh response validation, rotation, network failure, changed subjects, refresh coalescing, logout URLs, and realm invariants. Playwright covers all three roles, anonymous access, real API responses, session projection, refresh after 125 seconds, failed refresh, and SSO logout. Its test runner reads `.env.local` so it can verify encrypted cookie contents without exposing them to the page. Run browser tests against the local seed realm. Tests use a single browser worker and fresh browser contexts.
 
-The GitHub Actions workflow includes separate quality and browser jobs. Browser traces, videos, screenshots, and authentication response logs are disabled to avoid capturing credentials. The workflow is included as source; no GitHub repository was created and no CI run has been observed.
+The GitHub Actions workflow includes separate quality and browser jobs. Browser traces, videos, screenshots, and authentication response logs are disabled to avoid capturing credentials.
 
 ## Pinned versions
 
@@ -144,9 +142,9 @@ Version metadata and official documentation were checked on 2026-10-06. Every di
 | pnpm | 12.9.1 | Workspace package manager |
 | Next.js / eslint-config-next | 16.3.8 | App Router, standalone output, `proxy.ts` |
 | React / React DOM | 19.3.0 | Matching exact versions |
-| next-auth | 5.0.0-beta.32 | Requested v5 remains a beta |
+| next-auth | 5.0.0-beta.32 | Auth.js v5 is still in beta |
 | Keycloak | 26.8.0 | Postgres-backed dev and optimized production image |
-| Postgres | 16.15-bookworm | Requested major 16 |
+| Postgres | 16.15-bookworm | Postgres 16 |
 | Caddy | 2.11.7-alpine | TLS and reverse proxy |
 | TypeScript | 6.0.3 | Strict mode; within the lint parser's supported range |
 | ESLint | 9.39.5 | Within the Next.js lint plugins' peer ranges |
@@ -178,15 +176,10 @@ docs/adr/                         Decisions and limitations
 docs/DEPLOY.md                    VPS deployment and backups
 docs/SECURITY.md                  Security properties and trust boundaries
 docs/VERIFICATION.md              Static review and unexecuted checks
-scripts/package-zip.py            Source-only portfolio archive
 ```
-
-## Portfolio ZIP
-
-Run `pnpm package:zip` to create `dist/nextjs-keycloak-sso-rbac.zip`. The archive includes source, configuration, tests, docs, and the lockfile. It excludes Git internals, node modules, local env files, build output, browser artifacts, logs, private keys, and backups. `.env.example` files and the intentionally public demo passwords are included. Review the archive contents before uploading if you add your own files later.
 
 ## Scope
 
-Includes local infrastructure, realm reproducibility, OIDC login, refresh rotation, logout, RBAC, deployment configuration, documentation, unit tests, and browser tests. Expo/mobile, Kubernetes, clustering, custom Keycloak SPIs, LDAP, custom themes, account provisioning, publishing workflows, and live analytics are outside scope. No live deployment or passing test claim is implied.
+Includes local infrastructure, realm reproducibility, OIDC login, refresh rotation, logout, RBAC, deployment configuration, documentation, unit tests, and browser tests. Expo/mobile, Kubernetes, clustering, custom Keycloak SPIs, LDAP, custom themes, account provisioning, publishing workflows, and live analytics are outside scope.
 
 MIT license. See [LICENSE](LICENSE).

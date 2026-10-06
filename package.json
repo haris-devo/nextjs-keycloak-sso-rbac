@@ -16,7 +16,6 @@
     "e2e": "pnpm --filter @sso/web e2e",
     "infra:up": "pnpm env:local && docker compose --env-file infra/.env -f infra/docker-compose.yml up -d --wait",
     "infra:down": "docker compose --env-file infra/.env -f infra/docker-compose.yml down",
-    "infra:config": "docker compose --env-file infra/.env -f infra/docker-compose.yml config --quiet",
-    "package:zip": "python3 scripts/package-zip.py"
+    "infra:config": "docker compose --env-file infra/.env -f infra/docker-compose.yml config --quiet"
   }
 }
